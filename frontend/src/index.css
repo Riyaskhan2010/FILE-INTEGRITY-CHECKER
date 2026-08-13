@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cyber-bg text-cyber-text font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-cyber-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-cyber-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-cyber-muted;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-cyber-card border border-cyber-border rounded-xl p-5;
+  }
+
+  .btn-primary {
+    @apply bg-cyber-accent text-cyber-bg font-semibold px-5 py-2.5 rounded-lg
+           hover:bg-opacity-90 transition-all duration-200 flex items-center gap-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-cyber-border text-cyber-text font-medium px-5 py-2.5 rounded-lg
+           hover:bg-opacity-70 transition-all duration-200 flex items-center gap-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply bg-cyber-red bg-opacity-20 text-cyber-red font-medium px-5 py-2.5 rounded-lg
+           border border-cyber-red border-opacity-30
+           hover:bg-opacity-30 transition-all duration-200 flex items-center gap-2;
+  }
+
+  .btn-ghost {
+    @apply text-cyber-muted font-medium px-4 py-2 rounded-lg
+           hover:text-cyber-text hover:bg-cyber-border hover:bg-opacity-50
+           transition-all duration-200 flex items-center gap-2;
+  }
+
+  .input-field {
+    @apply bg-cyber-surface border border-cyber-border rounded-lg px-4 py-2.5
+           text-cyber-text placeholder-cyber-muted
+           focus:outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent
+           transition-colors duration-200 w-full;
+  }
+
+  .status-verified {
+    @apply text-cyber-green bg-green-900 bg-opacity-30 border border-green-800 border-opacity-40;
+  }
+
+  .status-modified {
+    @apply text-cyber-red bg-red-900 bg-opacity-30 border border-red-800 border-opacity-40;
+  }
+
+  .status-new {
+    @apply text-cyber-blue bg-blue-900 bg-opacity-30 border border-blue-800 border-opacity-40;
+  }
+
+  .status-error {
+    @apply text-cyber-yellow bg-yellow-900 bg-opacity-30 border border-yellow-800 border-opacity-40;
+  }
+
+  .badge {
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide;
+  }
+
+  .hash-text {
+    @apply font-mono text-xs break-all text-cyber-accent;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-cyber-text mb-4;
+  }
+
+  .cyber-glow {
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+  }
+
+  .verified-glow {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.15);
+  }
+
+  .danger-glow {
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.20);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Scan line effect for hero */
+.scan-line {
+  position: relative;
+  overflow: hidden;
+}
+.scan-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00d4ff44, transparent);
+  animation: scanLine 3s linear infinite;
+}
+@keyframes scanLine {
+  to { left: 100%; }
+}
