@@ -312,8 +312,12 @@ class FileMonitorService:
             self._observer.start()
             self._running = True
             log.info("FileMonitorService started.")
-            # Load all watcher_enabled=1 files from DB
+        # Load from DB OUTSIDE the lock to avoid deadlock:
+        # _load_from_db -> register() also acquires _service_lock
+        try:
             self._load_from_db()
+        except Exception as exc:
+            log.error("Error loading watchers from DB on startup: %s", exc)
 
     def stop(self):
         with self._service_lock:
@@ -510,23 +514,30 @@ def get_monitor() -> FileMonitorService:
 
 def start_monitor():
     """
-    Start the monitoring service.
-    Call this from app.py ONLY when not in the Werkzeug reloader child process.
+    Start the monitoring service in a background daemon thread so it never
+    blocks Flask from binding to the port.
+    Call this from app.py __main__ block.
     """
-    # Werkzeug dev server spawns a reloader process; WERKZEUG_RUN_MAIN='true'
-    # only in the actual serving child.  We want ONE monitor, not two.
-    in_reloader_child = os.environ.get('WERKZEUG_RUN_MAIN') == 'true'
-    is_debug = os.environ.get('FLASK_DEBUG', '0') == '1' or \
-               os.environ.get('FLASK_ENV') == 'development'
+    import threading
 
-    # Start only if:
-    #   - Not in debug/reloader mode at all (production/gunicorn), OR
-    #   - We ARE in the reloader child (the real serving process)
-    if not is_debug or in_reloader_child:
-        svc = get_monitor()
-        if not svc.is_running:
-            svc.start()
-            log.info("Monitor started (debug=%s, reloader_child=%s).",
-                     is_debug, in_reloader_child)
-    else:
-        log.info("Monitor deferred to reloader child process.")
+    def _do_start():
+        try:
+            # Werkzeug dev server spawns a reloader process; WERKZEUG_RUN_MAIN='true'
+            # only in the actual serving child. We want ONE monitor, not two.
+            in_reloader_child = os.environ.get('WERKZEUG_RUN_MAIN') == 'true'
+            is_debug = os.environ.get('FLASK_DEBUG', '0') == '1' or \
+                       os.environ.get('FLASK_ENV') == 'development'
+
+            if not is_debug or in_reloader_child:
+                svc = get_monitor()
+                if not svc.is_running:
+                    svc.start()
+                    log.info("Monitor started (debug=%s, reloader_child=%s).",
+                             is_debug, in_reloader_child)
+            else:
+                log.info("Monitor deferred to reloader child process.")
+        except Exception as exc:
+            log.error("Monitor startup error (non-fatal): %s", exc)
+
+    t = threading.Thread(target=_do_start, daemon=True, name="monitor-startup")
+    t.start()

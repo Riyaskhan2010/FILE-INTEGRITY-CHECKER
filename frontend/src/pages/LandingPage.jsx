@@ -162,13 +162,6 @@ export default function LandingPage() {
               Start Integrity Check
               <ArrowRight className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="btn-secondary text-base px-7 py-3"
-            >
-              <BarChart2 className="w-4.5 h-4.5" style={{ width: '18px', height: '18px' }} />
-              View Dashboard
-            </button>
           </div>
 
           {/* Quick stats */}

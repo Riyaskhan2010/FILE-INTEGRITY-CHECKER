@@ -13,12 +13,20 @@ api.interceptors.request.use(config => {
   return config
 })
 
-// Handle 401 globally
+// Handle 401 globally — but NOT for auth endpoints themselves
+// (a 401 on /auth/login means wrong credentials, not an expired session)
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.status === 401) {
+    const url = err.config?.url || ''
+    const isAuthEndpoint = url.includes('/auth/login') ||
+                           url.includes('/auth/register') ||
+                           url.includes('/auth/change-password')
+
+    if (err.response?.status === 401 && !isAuthEndpoint) {
+      // Session expired — clear token and redirect to login
       localStorage.removeItem('token')
+      delete api.defaults.headers.common['Authorization']
       window.location.href = '/login'
     }
     return Promise.reject(err)
