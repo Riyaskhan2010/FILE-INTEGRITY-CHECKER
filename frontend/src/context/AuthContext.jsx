@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password })
     const { token, user } = res.data
+    if (!token) throw new Error('No token received from server')
     localStorage.setItem('token', token)
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
     setUser(user)
@@ -35,6 +36,7 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password })
     const { token, user } = res.data
+    if (!token) throw new Error('No token received from server')
     localStorage.setItem('token', token)
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
     setUser(user)

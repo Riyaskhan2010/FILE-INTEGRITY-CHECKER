@@ -41,6 +41,14 @@ os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(Config.REPORTS_FOLDER, exist_ok=True)
 os.makedirs(Config.DEMO_FOLDER, exist_ok=True)
 
+# ── Initialize DB at module load (runs under both gunicorn and python app.py) ──
+init_db()
+try:
+    from migrate_v2_1 import migrate
+    migrate()
+except Exception as _me:
+    print(f"Migration note: {_me}")
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def allowed_file(filename: str) -> bool:
@@ -1511,18 +1519,8 @@ def method_not_allowed(e):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
-    init_db()
-    # Run V2.1 migration (safe to re-run — skips existing columns)
-    try:
-        from migrate_v2_1 import migrate
-        migrate()
-    except Exception as _me:
-        print(f"Migration warning: {_me}")
-
-    # Start the real-time monitoring service
-    # Guard prevents duplicate watchers when Werkzeug reloader is active
+    # init_db and migrate already run at module level above
     start_monitor()
-
     print("Starting File Integrity Checker API v2.1...")
     print("API running at http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
