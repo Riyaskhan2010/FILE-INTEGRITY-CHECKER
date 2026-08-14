@@ -22,7 +22,7 @@ export default function RegisterPage() {
     try {
       await register(name, email, password)
       toast.success('Account created! Demo data loaded.')
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed')
     } finally {
